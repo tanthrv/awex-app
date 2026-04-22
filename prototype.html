@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>AWExpedition™ — Client Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #F7F3EE;
+    --warm-white: #FDFAF6;
+    --bark: #2C2017;
+    --moss: #4A5C3E;
+    --clay: #B5714A;
+    --sand: #D4B896;
+    --mist: #E8E0D5;
+    --gold: #C9943A;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body { font-family: 'DM Sans', Georgia, serif; background: var(--warm-white); color: var(--bark); font-weight: 300; line-height: 1.7; min-height: 100vh; display: flex; justify-content: center; }
+  .app { width: 100%; max-width: 480px; min-height: 100vh; background: var(--warm-white); display: flex; flex-direction: column; }
+  .screen { display: none; flex-direction: column; min-height: 100vh; animation: fadeIn 0.25s ease; }
+  .screen.active { display: flex; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+
+  /* ══ LOGIN ══ */
+  #screen-login { background: var(--bark); justify-content: center; align-items: center; padding: 40px 32px; text-align: center; }
+  .login-logo { font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-weight: 600; letter-spacing: 0.04em; color: var(--cream); margin-bottom: 6px; }
+  .login-logo span { color: var(--clay); }
+  .login-tagline { font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--sand); opacity: 0.6; margin-bottom: 48px; }
+  .login-form-wrap { width: 100%; max-width: 300px; }
+  .field-label { font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--sand); opacity: 0.6; text-align: left; display: block; margin-bottom: 8px; }
+  .login-input { width: 100%; padding: 13px 16px; background: rgba(255,255,255,0.07); border: 1px solid rgba(212,184,150,0.25); color: var(--cream); font-size: 15px; font-family: 'DM Sans', sans-serif; font-weight: 300; outline: none; border-radius: 2px; transition: border-color 0.2s; margin-bottom: 16px; }
+  .login-input::placeholder { color: rgba(212,184,150,0.3); }
+  .login-input:focus { border-color: rgba(212,184,150,0.6); }
+  .login-btn { width: 100%; padding: 13px; background: var(--clay); color: var(--cream); border: none; border-radius: 2px; font-size: 0.78rem; font-weight: 400; letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: background 0.2s; margin-top: 4px; }
+  .login-btn:hover { background: var(--moss); }
+  .login-toggle { margin-top: 24px; font-size: 0.75rem; color: rgba(212,184,150,0.4); cursor: pointer; }
+  .login-toggle span { color: rgba(212,184,150,0.7); border-bottom: 1px solid rgba(212,184,150,0.3); }
+  .login-error { font-size: 0.78rem; color: #e09090; margin-top: 10px; min-height: 18px; }
+
+  /* ══ WELCOME ══ */
+  #screen-welcome { background: var(--bark); justify-content: center; align-items: center; padding: 48px 32px; text-align: center; }
+  .welcome-mark { font-family: 'Cormorant Garamond', serif; font-size: 3.5rem; font-weight: 300; color: var(--sand); margin-bottom: 8px; letter-spacing: 0.1em; }
+  .welcome-title { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 300; color: var(--cream); margin-bottom: 24px; line-height: 1.4; }
+  .welcome-body { font-size: 0.88rem; color: rgba(212,184,150,0.7); line-height: 1.9; font-weight: 300; text-align: left; max-width: 340px; margin-bottom: 32px; }
+  .welcome-body strong { color: var(--sand); font-weight: 400; }
+  .welcome-body em { font-style: italic; color: var(--cream); opacity: 0.8; }
+  .welcome-awe { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; color: var(--sand); font-style: italic; margin-bottom: 32px; line-height: 1.6; max-width: 300px; text-align: center; }
+  .welcome-btn { padding: 13px 32px; background: transparent; color: var(--cream); border: 1px solid rgba(212,184,150,0.4); border-radius: 2px; font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase; font-family: 'DM Sans', sans-serif; cursor: pointer; transition: all 0.2s; }
+  .welcome-btn:hover { background: rgba(255,255,255,0.05); border-color: var(--sand); }
+
+  /* ══ TOPBAR ══ */
+  .topbar { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-bottom: 1px solid var(--mist); background: var(--warm-white); position: sticky; top: 0; z-index: 10; }
+  .topbar-logo { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 600; letter-spacing: 0.04em; color: var(--bark); }
+  .topbar-logo span { color: var(--clay); }
+  .topbar-right { display: flex; flex-direction: column; align-items: flex-end; gap: 1px; }
+  .topbar-name { font-size: 0.72rem; color: var(--clay); letter-spacing: 0.05em; }
+  .topbar-logout { font-size: 0.65rem; color: var(--sand); cursor: pointer; letter-spacing: 0.08em; text-transform: uppercase; }
+
+  /* ══ HOME ══ */
+  .home-letter { padding: 28px 24px 24px; border-bottom: 1px solid var(--mist); }
+  .home-eyebrow { font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--clay); display: block; margin-bottom: 12px; opacity: 0.8; }
+  .home-greeting { font-family: 'Cormorant Garamond', serif; font-size: 2.2rem; font-weight: 300; color: var(--bark); line-height: 1.1; }
+  .home-greeting em { font-style: italic; color: var(--clay); }
+  .nudge-bar { margin: 16px 20px 0; background: var(--cream); border: 1px solid var(--mist); padding: 12px 16px; display: flex; gap: 10px; align-items: flex-start; }
+  .nudge-dash { color: var(--clay); font-size: 0.8rem; margin-top: 3px; flex-shrink: 0; }
+  .nudge-text { font-size: 0.82rem; color: var(--bark); opacity: 0.7; line-height: 1.6; }
+  .section-eyebrow { font-size: 0.62rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--clay); padding: 24px 24px 10px; display: block; opacity: 0.7; }
+  .nav-card { margin: 0 20px 10px; background: var(--warm-white); border: 1px solid var(--mist); padding: 16px 18px; display: flex; align-items: center; gap: 14px; cursor: pointer; transition: all 0.2s; }
+  .nav-card:hover { border-color: var(--sand); background: var(--cream); }
+  .nav-card.quiet { opacity: 0.75; }
+  .nav-icon-wrap { width: 38px; height: 38px; border: 1px solid var(--mist); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; background: var(--cream); }
+  .nav-card-title { font-size: 0.9rem; font-weight: 400; color: var(--bark); margin-bottom: 2px; }
+  .nav-card-sub { font-size: 0.78rem; color: var(--bark); opacity: 0.5; font-weight: 300; }
+  .nav-badge { margin-left: auto; width: 7px; height: 7px; border-radius: 50%; background: var(--clay); flex-shrink: 0; }
+
+  /* ══ BOTTOM NAV ══ */
+  .bottom-nav { display: flex; background: var(--warm-white); border-top: 1px solid var(--mist); padding: 10px 0 env(safe-area-inset-bottom, 10px); margin-top: auto; position: sticky; bottom: 0; }
+  .bnav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--sand); transition: color 0.2s; padding: 4px 0; }
+  .bnav-item.active { color: var(--clay); }
+  .bnav-icon { font-size: 17px; }
+
+  /* ══ INNER SCREENS ══ */
+  .inner-hero { background: var(--bark); padding: 20px 20px 18px; }
+  .back-link { font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--sand); opacity: 0.5; cursor: pointer; margin-bottom: 10px; display: inline-block; }
+  .inner-title { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-weight: 300; color: var(--cream); line-height: 1.1; }
+  .inner-title em { font-style: italic; color: var(--sand); }
+  .inner-sub { font-size: 0.82rem; color: rgba(212,184,150,0.55); line-height: 1.8; margin-top: 6px; font-weight: 300; }
+  .inner-body { padding: 20px; flex: 1; overflow-y: auto; padding-bottom: 100px; }
+
+  /* ══ JOURNEY MAP ══ */
+  .path-card { background: var(--warm-white); border: 1px solid var(--mist); padding: 16px 18px; margin-bottom: 10px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: space-between; }
+  .path-card:hover { border-color: var(--sand); background: var(--cream); }
+  .path-name { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 400; color: var(--bark); margin-bottom: 2px; }
+  .path-meta { font-size: 0.72rem; color: var(--bark); opacity: 0.45; }
+  .path-arrow { color: var(--sand); font-size: 1rem; }
+  .path-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--clay); margin-right: 12px; flex-shrink: 0; }
+
+  .session-block { margin-bottom: 28px; }
+  .session-tag { font-size: 0.62rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--clay); display: block; opacity: 0.8; border-bottom: 1px solid var(--mist); padding-bottom: 8px; margin-bottom: 14px; }
+  .session-notes { background: var(--cream); border: 1px solid var(--mist); padding: 16px 18px; margin-bottom: 14px; border-left: 3px solid var(--sand); }
+  .notes-label { font-size: 0.6rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--clay); display: block; margin-bottom: 8px; opacity: 0.8; }
+  .notes-text { font-family: 'Cormorant Garamond', serif; font-size: 1rem; color: var(--bark); line-height: 1.8; white-space: pre-line; }
+  .notes-byline { font-size: 0.65rem; color: var(--sand); margin-top: 8px; letter-spacing: 0.08em; }
+  .reflections-label { font-size: 0.6rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); display: block; margin: 16px 0 10px; opacity: 0.9; }
+  .question-card { background: var(--warm-white); border: 1px solid var(--mist); padding: 16px 18px; margin-bottom: 10px; }
+  .question-text { font-family: 'Cormorant Garamond', serif; font-size: 1.05rem; color: var(--bark); line-height: 1.7; margin-bottom: 10px; }
+  .question-note { font-size: 0.72rem; color: var(--sand); margin-bottom: 10px; font-style: italic; }
+  textarea.response-input { width: 100%; border: 1px solid var(--mist); padding: 12px 14px; font-size: 0.9rem; line-height: 1.8; font-family: 'Cormorant Garamond', serif; color: var(--bark); background: var(--cream); resize: none; min-height: 90px; outline: none; transition: border-color 0.2s; }
+  textarea.response-input:focus { border-color: var(--sand); }
+  textarea.response-input::placeholder { color: rgba(44,32,23,0.25); font-style: italic; }
+  .skip-row { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; align-items: center; }
+  .skip-label { font-size: 0.68rem; color: var(--sand); opacity: 0.8; cursor: pointer; }
+  .skip-chip { font-size: 0.65rem; padding: 3px 10px; border: 1px solid var(--mist); background: var(--cream); color: var(--bark); opacity: 0.6; cursor: pointer; display: none; transition: all 0.2s; }
+  .skip-chip.show { display: inline-block; }
+  .skip-chip.selected { background: var(--bark); color: var(--cream); opacity: 1; border-color: var(--bark); }
+  .save-btn { width: 100%; padding: 13px; background: var(--moss); color: var(--cream); border: none; border-radius: 2px; font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; font-family: 'DM Sans', sans-serif; font-weight: 400; cursor: pointer; transition: background 0.2s; margin-top: 8px; }
+  .save-btn:hover { background: var(--bark); }
+
+  /* ══ EXPERIMENTS ══ */
+  .exp-tabs { display: flex; border-bottom: 1px solid var(--mist); background: var(--warm-white); }
+  .exp-tab { flex: 1; padding: 12px 8px; text-align: center; font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--sand); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; }
+  .exp-tab.active { color: var(--clay); border-bottom-color: var(--clay); }
+  .exp-panel { display: none; padding: 20px; padding-bottom: 100px; }
+  .exp-panel.active { display: block; }
+
+  .experiment-card { background: var(--warm-white); border: 1px solid var(--mist); padding: 16px 18px; margin-bottom: 14px; }
+  .exp-name { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 400; color: var(--bark); margin-bottom: 4px; }
+  .exp-desc { font-size: 0.82rem; color: var(--bark); opacity: 0.6; line-height: 1.6; margin-bottom: 14px; font-weight: 300; }
+  .exp-streak { font-size: 0.68rem; color: var(--clay); letter-spacing: 0.08em; margin-bottom: 12px; }
+  .tracker-label { font-size: 0.62rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--bark); opacity: 0.45; margin-bottom: 10px; display: block; }
+  .tracker-btns { display: flex; gap: 6px; }
+  .tracker-btn { flex: 1; padding: 10px 6px; border: 1px solid var(--mist); background: var(--cream); font-size: 0.7rem; cursor: pointer; font-family: 'DM Sans', sans-serif; color: var(--bark); text-align: center; transition: all 0.2s; line-height: 1.3; }
+  .tracker-btn:hover { border-color: var(--sand); }
+  .tracker-btn.did-it { background: var(--moss); color: var(--cream); border-color: var(--moss); }
+  .tracker-btn.forgot { background: var(--cream); color: var(--bark); opacity: 0.7; }
+  .tracker-btn.got-in-way { background: var(--bark); color: var(--cream); border-color: var(--bark); }
+  .got-in-way-prompt { margin-top: 10px; display: none; }
+  .got-in-way-prompt.show { display: block; }
+  textarea.giw-input { width: 100%; border: 1px solid var(--mist); background: var(--cream); padding: 10px 12px; font-family: 'Cormorant Garamond', serif; font-size: 0.95rem; color: var(--bark); resize: none; min-height: 60px; outline: none; }
+  textarea.giw-input:focus { border-color: var(--sand); }
+  .giw-label { font-size: 0.72rem; color: var(--bark); opacity: 0.5; font-style: italic; margin-bottom: 6px; display: block; }
+  .log-history { margin-top: 12px; border-top: 1px solid var(--mist); padding-top: 10px; }
+  .log-item { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; font-size: 0.75rem; border-bottom: 1px solid rgba(0,0,0,0.04); }
+  .log-date { color: var(--bark); opacity: 0.4; }
+  .log-status { font-weight: 400; }
+  .log-status.did { color: var(--moss); }
+  .log-status.forgot { color: var(--sand); }
+  .log-status.giw { color: var(--clay); }
+  .log-note { font-size: 0.68rem; color: var(--bark); opacity: 0.5; font-style: italic; margin-top: 1px; }
+
+  .future-card { background: var(--cream); border: 1px solid var(--mist); padding: 14px 16px; margin-bottom: 10px; }
+  .future-idea { font-family: 'Cormorant Garamond', serif; font-size: 1rem; color: var(--bark); line-height: 1.6; }
+  .future-date { font-size: 0.65rem; color: var(--sand); margin-top: 4px; }
+  .add-future-form { margin-top: 16px; }
+  .add-future-label { font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--bark); opacity: 0.5; display: block; margin-bottom: 8px; }
+  textarea.future-input { width: 100%; border: 1px solid var(--mist); background: var(--cream); padding: 12px 14px; font-family: 'Cormorant Garamond', serif; font-size: 1rem; color: var(--bark); resize: none; min-height: 80px; outline: none; }
+  textarea.future-input:focus { border-color: var(--sand); }
+  .empty-note { font-size: 0.85rem; color: var(--bark); opacity: 0.35; font-style: italic; padding: 8px 0; }
+
+  /* ══ REFLECTIONS ══ */
+  .journal-date { font-size: 0.65rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--clay); opacity: 0.7; margin-bottom: 16px; display: block; }
+  textarea.journal-input { width: 100%; border: none; border-bottom: 1px solid var(--mist); background: transparent; padding: 0 0 20px; font-family: 'Cormorant Garamond', serif; font-size: 1.15rem; line-height: 1.9; color: var(--bark); resize: none; min-height: 260px; outline: none; }
+  textarea.journal-input::placeholder { color: rgba(44,32,23,0.2); font-style: italic; }
+  .entries-label { font-size: 0.62rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--clay); opacity: 0.6; margin: 24px 0 12px; display: block; border-bottom: 1px solid var(--mist); padding-bottom: 6px; }
+  .journal-item { padding: 12px 0; border-bottom: 1px solid var(--mist); cursor: pointer; }
+  .journal-item-date { font-size: 0.68rem; color: var(--clay); opacity: 0.7; margin-bottom: 3px; }
+  .journal-item-preview { font-family: 'Cormorant Garamond', serif; font-size: 0.95rem; color: var(--bark); opacity: 0.65; font-style: italic; line-height: 1.5; }
+
+  /* ══ ABOUT AWE ══ */
+  #screen-awe { background: var(--bark); }
+  .awe-body { padding: 24px; flex: 1; overflow-y: auto; padding-bottom: 40px; }
+  .awe-mark { font-family: 'Cormorant Garamond', serif; font-size: 4rem; font-weight: 300; color: var(--sand); opacity: 0.4; line-height: 1; margin-bottom: 8px; }
+  .awe-title { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 300; color: var(--cream); margin-bottom: 20px; line-height: 1.4; }
+  .awe-section { margin-bottom: 24px; }
+  .awe-section-label { font-size: 0.62rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--sand); opacity: 0.6; display: block; margin-bottom: 8px; }
+  .awe-text { font-size: 0.88rem; color: rgba(212,184,150,0.7); line-height: 1.9; font-weight: 300; }
+  .awe-text strong { color: var(--sand); font-weight: 400; }
+  .awe-text em { font-style: italic; color: var(--cream); opacity: 0.8; }
+  .awe-pillars { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 16px 0; }
+  .awe-pillar { background: rgba(255,255,255,0.05); border: 1px solid rgba(212,184,150,0.15); padding: 14px 10px; text-align: center; }
+  .awe-pillar-letter { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 300; color: var(--sand); opacity: 0.5; display: block; line-height: 1; margin-bottom: 4px; }
+  .awe-pillar-name { font-size: 0.72rem; color: var(--cream); opacity: 0.6; }
+  .awe-pillar-sub { font-size: 0.6rem; color: var(--sand); opacity: 0.5; margin-top: 2px; display: block; line-height: 1.4; }
+  .awe-closing { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-style: italic; color: var(--sand); line-height: 1.7; margin-top: 24px; padding-top: 20px; border-top: 1px solid rgba(212,184,150,0.15); }
+
+  /* ══ CONFIRM ══ */
+  .confirm-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 48px 32px; text-align: center; background: var(--warm-white); }
+  .confirm-glyph { font-family: 'Cormorant Garamond', serif; font-size: 3rem; color: var(--sand); margin-bottom: 20px; }
+  .confirm-title { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 300; color: var(--bark); margin-bottom: 10px; }
+  .confirm-sub { font-family: 'Cormorant Garamond', serif; font-size: 1rem; color: var(--bark); opacity: 0.55; line-height: 1.8; font-style: italic; margin-bottom: 32px; max-width: 280px; }
+  .confirm-back { font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--clay); cursor: pointer; border-bottom: 1px solid var(--sand); padding-bottom: 2px; }
+
+  /* ══ COACH ══ */
+  .coach-hero { background: var(--bark); padding: 28px 20px 20px; }
+  .coach-eyebrow { font-size: 0.62rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--sand); opacity: 0.5; display: block; margin-bottom: 8px; }
+  .coach-title { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-weight: 300; color: var(--cream); }
+  .coach-title em { font-style: italic; color: var(--sand); }
+  .client-card { margin: 0 20px 10px; background: var(--warm-white); border: 1px solid var(--mist); padding: 16px 18px; cursor: pointer; transition: all 0.2s; }
+  .client-card:hover { border-color: var(--sand); background: var(--cream); }
+  .client-name { font-size: 1rem; font-weight: 400; color: var(--bark); margin-bottom: 3px; }
+  .client-meta { font-size: 0.75rem; color: var(--bark); opacity: 0.45; font-weight: 300; }
+  .client-tags { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+  .ctag { font-size: 0.6rem; letter-spacing: 0.08em; padding: 3px 8px; border: 1px solid var(--mist); background: var(--cream); color: var(--bark); opacity: 0.7; text-transform: uppercase; }
+  .ctag.new { background: var(--bark); color: var(--cream); border-color: var(--bark); opacity: 1; }
+  .coach-section { padding: 20px 20px 0; }
+  .coach-section-title { font-size: 0.65rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--clay); opacity: 0.8; margin-bottom: 14px; display: block; border-bottom: 1px solid var(--mist); padding-bottom: 6px; }
+  .response-card { background: var(--cream); border: 1px solid var(--mist); border-left: 3px solid var(--sand); padding: 14px 16px; margin-bottom: 10px; }
+  .response-session { font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--clay); opacity: 0.7; margin-bottom: 4px; }
+  .response-q { font-size: 0.78rem; color: var(--bark); opacity: 0.6; margin-bottom: 6px; font-style: italic; }
+  .response-a { font-family: 'Cormorant Garamond', serif; font-size: 1rem; color: var(--bark); line-height: 1.7; }
+  .response-date { font-size: 0.65rem; color: var(--sand); margin-top: 6px; }
+  .no-response { font-size: 0.82rem; color: var(--bark); opacity: 0.35; font-style: italic; }
+  .form-label { font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--bark); opacity: 0.5; display: block; margin-bottom: 8px; }
+  textarea.coach-input { width: 100%; border: 1px solid var(--mist); background: var(--cream); padding: 12px 14px; font-family: 'DM Sans', sans-serif; color: var(--bark); resize: none; outline: none; font-weight: 300; font-size: 0.88rem; line-height: 1.7; }
+  textarea.coach-input:focus { border-color: var(--sand); }
+  input.coach-text-input { width: 100%; border: 1px solid var(--mist); background: var(--cream); padding: 10px 14px; font-size: 0.85rem; font-family: 'DM Sans', sans-serif; color: var(--bark); outline: none; font-weight: 300; margin-bottom: 10px; }
+  input.coach-text-input:focus { border-color: var(--sand); }
+  .dashed-btn { width: 100%; padding: 13px; background: transparent; color: var(--bark); opacity: 0.5; border: 1px dashed var(--sand); font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; font-family: 'DM Sans', sans-serif; cursor: pointer; transition: all 0.2s; margin-top: 4px; }
+  .dashed-btn:hover { opacity: 0.8; border-color: var(--clay); color: var(--clay); }
+  .btn-row { display: flex; gap: 8px; margin-top: 8px; }
+  .btn-sm { padding: 10px 16px; font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; font-family: 'DM Sans', sans-serif; cursor: pointer; border: none; font-weight: 400; }
+  .btn-primary-sm { background: var(--moss); color: var(--cream); flex: 1; }
+  .btn-primary-sm:hover { background: var(--bark); }
+  .detail-back { padding: 16px 20px 0; }
+  .detail-client-name { font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-weight: 300; color: var(--bark); padding: 8px 20px 4px; }
+  .detail-client-code { font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--clay); opacity: 0.6; padding: 0 20px 16px; border-bottom: 1px solid var(--mist); }
+  .coach-actions { padding: 20px; border-top: 1px solid var(--mist); margin-top: 20px; }
+  .signout-btn { width: 100%; padding: 11px; background: transparent; color: var(--bark); opacity: 0.4; border: 1px solid var(--mist); font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; font-family: 'DM Sans', sans-serif; cursor: pointer; }
+  .hidden { display: none !important; }
+  .path-section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .path-section-title { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; color: var(--bark); font-weight: 400; }
+  .path-back { font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--sand); cursor: pointer; }
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ══ LOGIN ══ -->
+<div id="screen-login" class="screen active">
+  <div class="login-logo">AW<span>Expedition</span>™</div>
+  <div class="login-tagline">Awareness · Alignment · Action</div>
+  <div class="login-form-wrap">
+    <div id="client-fields">
+      <span class="field-label">Your first name</span>
+      <input id="login-name" class="login-input" type="text" placeholder="Enter your name" autocomplete="off">
+    </div>
+    <span class="field-label">Access code</span>
+    <input id="login-code" class="login-input" type="text" placeholder="Your personal code" autocomplete="off">
+    <div id="login-error" class="login-error"></div>
+    <button class="login-btn" onclick="doLogin()">Begin your expedition</button>
+    <div class="login-toggle" onclick="toggleCoachMode()">Are you a guide? <span>Sign in here</span></div>
+  </div>
+</div>
+
+<!-- ══ WELCOME ══ -->
+<div id="screen-welcome" class="screen">
+  <div class="welcome-mark">AWE</div>
+  <div class="welcome-title">Welcome to Awareness &amp;<br>Alignment™ Coaching</div>
+  <div class="welcome-body">
+    <p>Congratulations on taking the first step on your <strong>AWExpedition</strong>.</p>
+    <br>
+    <p><strong>AWE</strong> is a wellbeing paradigm that stands for:</p>
+    <br>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;max-width:340px;margin-bottom:24px;">
+    <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(212,184,150,0.15);padding:14px 8px;text-align:center;">
+      <span style="font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:300;color:#D4B896;opacity:0.6;display:block;line-height:1;margin-bottom:4px;">A</span>
+      <span style="font-size:0.68rem;color:#FDFAF6;opacity:0.6;">Awareness</span>
+    </div>
+    <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(212,184,150,0.15);padding:14px 8px;text-align:center;">
+      <span style="font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:300;color:#D4B896;opacity:0.6;display:block;line-height:1;margin-bottom:4px;">W</span>
+      <span style="font-size:0.68rem;color:#FDFAF6;opacity:0.6;">Wonder</span>
+    </div>
+    <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(212,184,150,0.15);padding:14px 8px;text-align:center;">
+      <span style="font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:300;color:#D4B896;opacity:0.6;display:block;line-height:1;margin-bottom:4px;">E</span>
+      <span style="font-size:0.68rem;color:#FDFAF6;opacity:0.6;">Embodied<br>Alignment</span>
+    </div>
+  </div>
+  <div class="welcome-body">
+    <p>Wonder embraces <em>Why, Open, Novelty, Discovery, Experimentation &amp; Reflection.</em></p>
+    <br>
+    <p>This app is meant to help you hone your awareness and practice in between sessions. If you do not want to answer any particular question — just note whether you want more time, you're not comfortable answering, or you don't think the question is helpful to your journey.</p>
+    <br>
+    <p><strong>There are no wrong answers — only awareness.</strong></p>
+  </div>
+  <div class="welcome-awe">"I'm AWEsome" means I have awareness, wonder &amp; embodied alignment — on any kind of day.</div>
+  <button class="welcome-btn" onclick="showScreen('screen-home')">Begin my expedition →</button>
+</div>
+
+<!-- ══ CLIENT: HOME ══ -->
+<div id="screen-home" class="screen">
+  <div class="topbar">
+    <div class="topbar-logo">AW<span>Expedition</span>™</div>
+    <div class="topbar-right">
+      <div class="topbar-name" id="home-client-name"></div>
+      <div class="topbar-logout" onclick="doLogout()">Sign out</div>
+    </div>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding-bottom:80px;">
+    <div class="home-letter">
+      <span class="home-eyebrow" id="home-date"></span>
+      <div class="home-greeting" id="home-greeting"></div>
+    </div>
+    <div class="nudge-bar" id="nudge-bar" style="display:none;">
+      <span class="nudge-dash">—</span>
+      <span class="nudge-text">It's been a little while. No rush — just a quiet hello from your expedition.</span>
+    </div>
+    <span class="section-eyebrow">Your expedition</span>
+    <div class="nav-card" onclick="showScreen('screen-journey')">
+      <div class="nav-icon-wrap">👣</div>
+      <div>
+        <div class="nav-card-title">Journey Map</div>
+        <div class="nav-card-sub" id="journey-sub">Your session reflections</div>
+      </div>
+      <div class="nav-badge" id="journey-badge" style="display:none;"></div>
+    </div>
+    <div class="nav-card" onclick="showScreen('screen-experiments')">
+      <div class="nav-icon-wrap">🌱</div>
+      <div>
+        <div class="nav-card-title">Experiments</div>
+        <div class="nav-card-sub">AWE in Action</div>
+      </div>
+      <div class="nav-badge" id="exp-badge" style="display:none;"></div>
+    </div>
+    <div class="nav-card" onclick="showScreen('screen-journal')">
+      <div class="nav-icon-wrap">✏️</div>
+      <div>
+        <div class="nav-card-title">Reflections</div>
+        <div class="nav-card-sub">Anything related to your journey today?</div>
+      </div>
+    </div>
+    <div class="nav-card quiet" onclick="showScreen('screen-awe')" style="margin-top:8px;border-style:dashed;">
+      <div class="nav-icon-wrap" style="font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:300;color:var(--sand);">✦</div>
+      <div>
+        <div class="nav-card-title" style="font-size:0.82rem;opacity:0.7;">About AWE</div>
+        <div class="nav-card-sub">Your expedition philosophy</div>
+      </div>
+    </div>
+  </div>
+  <div class="bottom-nav">
+    <div class="bnav-item active" onclick="showScreen('screen-home')"><div class="bnav-icon">⌂</div>Home</div>
+    <div class="bnav-item" onclick="showScreen('screen-journey')"><div class="bnav-icon">👣</div>Journey</div>
+    <div class="bnav-item" onclick="showScreen('screen-experiments')"><div class="bnav-icon">🌱</div>Exper.</div>
+    <div class="bnav-item" onclick="showScreen('screen-journal')"><div class="bnav-icon">✏️</div>Reflect.</div>
+  </div>
+</div>
+
+<!-- ══ CLIENT: JOURNEY MAP ══ -->
+<div id="screen-journey" class="screen">
+  <div class="topbar">
+    <div class="back-link" onclick="showScreen('screen-home')">← Home</div>
+    <div class="topbar-logout" onclick="doLogout()">Sign out</div>
+  </div>
+  <div class="inner-hero">
+    <div class="inner-title">Journey <em>Map</em></div>
+    <div class="inner-sub">Answer what feels right. Leave what doesn't. There are no wrong answers — only awareness.</div>
+  </div>
+  <div id="journey-paths-list" class="inner-body">
+  </div>
+  <div id="journey-path-detail" class="inner-body hidden">
+  </div>
+  <div class="bottom-nav">
+    <div class="bnav-item" onclick="showScreen('screen-home')"><div class="bnav-icon">⌂</div>Home</div>
+    <div class="bnav-item active"><div class="bnav-icon">👣</div>Journey</div>
+    <div class="bnav-item" onclick="showScreen('screen-experiments')"><div class="bnav-icon">🌱</div>Exper.</div>
+    <div class="bnav-item" onclick="showScreen('screen-journal')"><div class="bnav-icon">✏️</div>Reflect.</div>
+  </div>
+</div>
+
+<!-- ══ CLIENT: EXPERIMENTS ══ -->
+<div id="screen-experiments" class="screen">
+  <div class="topbar">
+    <div class="back-link" onclick="showScreen('screen-home')">← Home</div>
+    <div class="topbar-logout" onclick="doLogout()">Sign out</div>
+  </div>
+  <div class="inner-hero">
+    <div class="inner-title"><em>AWE</em> in Action</div>
+    <div class="inner-sub">Your active practices, completed experiments, and ideas for future exploration.</div>
+  </div>
+  <div class="exp-tabs">
+    <div class="exp-tab active" onclick="switchExpTab('active')">Active</div>
+    <div class="exp-tab" onclick="switchExpTab('completed')">Completed</div>
+    <div class="exp-tab" onclick="switchExpTab('future')">Future Explorations</div>
+  </div>
+  <div id="exp-active" class="exp-panel active" id="exp-panel-active"></div>
+  <div id="exp-completed" class="exp-panel"></div>
+  <div id="exp-future" class="exp-panel"></div>
+  <div class="bottom-nav">
+    <div class="bnav-item" onclick="showScreen('screen-home')"><div class="bnav-icon">⌂</div>Home</div>
+    <div class="bnav-item" onclick="showScreen('screen-journey')"><div class="bnav-icon">👣</div>Journey</div>
+    <div class="bnav-item active"><div class="bnav-icon">🌱</div>Exper.</div>
+    <div class="bnav-item" onclick="showScreen('screen-journal')"><div class="bnav-icon">✏️</div>Reflect.</div>
+  </div>
+</div>
+
+<!-- ══ CLIENT: REFLECTIONS ══ -->
+<div id="screen-journal" class="screen">
+  <div class="topbar">
+    <div class="back-link" onclick="showScreen('screen-home')">← Home</div>
+    <div class="topbar-logout" onclick="doLogout()">Sign out</div>
+  </div>
+  <div class="inner-hero">
+    <div class="inner-title"><em>Reflections</em></div>
+    <div class="inner-sub">Anything related to your journey today?</div>
+  </div>
+  <div class="inner-body">
+    <span class="journal-date" id="journal-today"></span>
+    <div id="reflection-prompt-wrap" style="display:none;margin-bottom:20px;padding:16px 18px;background:var(--cream);border:1px solid var(--mist);border-left:3px solid var(--sand);">
+      <span style="font-size:0.6rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--clay);opacity:0.8;display:block;margin-bottom:8px;">A question to sit with, if it calls to you</span>
+      <div id="reflection-prompt-text" style="font-family:'Cormorant Garamond',serif;font-size:1.05rem;color:var(--bark);line-height:1.7;font-style:italic;"></div>
+    </div>
+    <textarea class="journal-input" id="journal-text" placeholder="Start anywhere..."></textarea>
+    <button class="save-btn" style="margin-top:16px;" onclick="saveJournal()">Save this reflection</button>
+    <span class="entries-label">Past reflections</span>
+    <div id="journal-list"></div>
+  </div>
+  <div class="bottom-nav">
+    <div class="bnav-item" onclick="showScreen('screen-home')"><div class="bnav-icon">⌂</div>Home</div>
+    <div class="bnav-item" onclick="showScreen('screen-journey')"><div class="bnav-icon">👣</div>Journey</div>
+    <div class="bnav-item" onclick="showScreen('screen-experiments')"><div class="bnav-icon">🌱</div>Exper.</div>
+    <div class="bnav-item active"><div class="bnav-icon">✏️</div>Reflect.</div>
+  </div>
+</div>
+
+<!-- ══ ABOUT AWE ══ -->
+<div id="screen-awe" class="screen">
+  <div class="topbar" style="background:var(--bark);border-bottom-color:rgba(212,184,150,0.15);">
+    <div class="back-link" style="margin-bottom:0;" onclick="showScreen('screen-home')">← Home</div>
+    <div class="topbar-logo" style="color:var(--cream);">AW<span style="color:var(--clay);">Expedition</span>™</div>
+  </div>
+  <div class="awe-body" style="background:var(--bark);">
+    <div class="awe-mark">AWE</div>
+    <div class="awe-title">Welcome to Awareness &amp; Alignment™ Coaching</div>
+    <div class="awe-section">
+      <div class="awe-text">Congratulations on taking the first step on your <strong>AWExpedition</strong>. AWE is a wellbeing paradigm that stands for <strong>Awareness, Wonder &amp; Embodied Alignment.</strong></div>
+    </div>
+    <div class="awe-pillars">
+      <div class="awe-pillar"><span class="awe-pillar-letter">A</span><span class="awe-pillar-name">Awareness</span></div>
+      <div class="awe-pillar"><span class="awe-pillar-letter">W</span><span class="awe-pillar-name">Wonder</span><span class="awe-pillar-sub">Why · Open · Novelty · Discovery · Experimentation · Reflection</span></div>
+      <div class="awe-pillar"><span class="awe-pillar-letter">E</span><span class="awe-pillar-name">Embodied Alignment</span></div>
+    </div>
+    <div class="awe-section">
+      <div class="awe-text">The Journey is intended to bring that AWE in your life so that you can confidently say <em>"I'm AWEsome!"</em> every day of your life. My aim is to bring awareness around your life, explore goals, and bring clarity and alignment to your life.</div>
+    </div>
+    <div class="awe-section">
+      <span class="awe-section-label">How this app works</span>
+      <div class="awe-text">This app is meant to help you hone your awareness and practice in between sessions. If you do not want to answer any particular question — just note whether you want more time, you're not comfortable answering, or you don't think the question is helpful to your journey. <strong>There are no wrong answers — only awareness.</strong></div>
+    </div>
+    <div class="awe-closing">"I'm AWEsome" means I have awareness, wonder &amp; embodied alignment — on any kind of day. And on the really good days? You might even find yourself AWEfull.</div>
+  </div>
+</div>
+
+<!-- ══ CONFIRM ══ -->
+<div id="screen-confirm" class="screen">
+  <div class="topbar"><div class="topbar-logo">AW<span>Expedition</span>™</div></div>
+  <div class="confirm-wrap">
+    <div class="confirm-glyph" id="confirm-glyph">✦</div>
+    <div class="confirm-title" id="confirm-title">Saved.</div>
+    <div class="confirm-sub" id="confirm-sub">Awareness is never wasted.</div>
+    <div class="confirm-back" id="confirm-back">Return</div>
+  </div>
+</div>
+
+<!-- ══ COACH DASHBOARD ══ -->
+<div id="screen-coach" class="screen">
+  <div class="coach-hero">
+    <span class="coach-eyebrow">Guide Dashboard · AWExpedition™</span>
+    <div class="coach-title">Good to see you, <em id="coach-name-display"></em></div>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding-bottom:20px;">
+    <div id="coach-main">
+      <span class="section-eyebrow">Your clients</span>
+      <div id="coach-client-list"></div>
+      <div style="padding:0 20px 20px;">
+        <button class="dashed-btn" onclick="addNewClient()">+ Add new client</button>
+      </div>
+    </div>
+    <div id="coach-detail" class="hidden">
+      <div class="detail-back"><span class="back-link" onclick="hideDetail()">← All clients</span></div>
+      <div class="detail-client-name" id="detail-name"></div>
+      <div class="detail-client-code" id="detail-code"></div>
+
+      <div class="coach-section">
+        <span class="coach-section-title">Journey paths</span>
+        <div id="detail-paths"></div>
+        <div style="margin-top:12px;">
+          <span class="form-label">Add / update a journey path</span>
+          <input class="coach-text-input" id="new-path-name" type="text" placeholder="Path name (e.g. Substances & Spiritual Path)">
+          <span class="form-label">Session label</span>
+          <input class="coach-text-input" id="new-session-label" type="text" placeholder="e.g. Session 2 · April 20">
+          <span class="form-label">Session notes (client will read this)</span>
+          <textarea class="coach-input" id="new-notes-text" style="min-height:100px;" placeholder="Summarize what came up — what was discussed, what landed, what you observed..."></textarea>
+          <span class="form-label" style="margin-top:10px;">Reflection question</span>
+          <textarea class="coach-input" id="new-q-text" style="min-height:60px;margin-top:0;" placeholder="A question for them to sit with..."></textarea>
+          <div class="btn-row">
+            <button class="btn-sm btn-primary-sm" onclick="addJourneyContent()">Add to Journey Map</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="coach-section" style="margin-top:16px;">
+        <span class="coach-section-title">Journey map responses</span>
+        <div id="detail-responses"></div>
+      </div>
+
+      <div class="coach-section" style="margin-top:16px;">
+        <span class="coach-section-title">Add experiment</span>
+        <input class="coach-text-input" id="new-exp-name" type="text" placeholder="Experiment name (e.g. Phone away at 9pm)">
+        <textarea class="coach-input" id="new-exp-desc" style="min-height:60px;" placeholder="Describe the practice and intention..."></textarea>
+        <div class="btn-row">
+          <button class="btn-sm btn-primary-sm" onclick="addExperiment()">Add experiment</button>
+        </div>
+        <div style="margin-top:16px;">
+          <span class="coach-section-title" style="margin-bottom:10px;">Future explorations (client ideas)</span>
+          <div id="detail-future"></div>
+        </div>
+      </div>
+
+      <div class="coach-section" style="margin-top:16px;">
+        <span class="coach-section-title">Reflection prompt for Reflections page</span>
+        <span class="form-label">This appears softly at the top of their Reflections page — optional, they can ignore it</span>
+        <textarea class="coach-input" id="reflection-prompt-field" style="min-height:70px;" placeholder="e.g. What are you noticing about your energy this week?"></textarea>
+        <div class="btn-row" style="margin-top:8px;">
+          <button class="btn-sm btn-primary-sm" onclick="saveReflectionPrompt()">Save prompt</button>
+        </div>
+      </div>
+        <div id="detail-journals"></div>
+      </div>
+    </div>
+  </div>
+  <div class="coach-actions">
+    <button class="signout-btn" onclick="doLogout()">Sign out</button>
+  </div>
+</div>
+
+</div>
+<script>
+// ══════════════════════════════════════
+// AIRTABLE CONFIG — your credentials
+// ══════════════════════════════════════
+const AT_TOKEN = 'YOUR_PERSONAL_ACCESS_TOKEN_HERE';
+const AT_BASE  = 'app9TAp530dtSgz0c';
+const AT_URL   = `https://api.airtable.com/v0/${AT_BASE}`;
+
+const AT = {
+  headers: {
+    'Authorization': `Bearer ${AT_TOKEN}`,
+    'Content-Type': 'application/json'
+  },
+
+  async get(table, formula='') {
+    let url = `${AT_URL}/${encodeURIComponent(table)}`;
+    const params = [];
+    if (formula) params.push(`filterByFormula=${encodeURIComponent(formula)}`);
+    if (params.length) url += '?' + params.join('&');
+    const r = await fetch(url, { headers: this.headers });
+    const d = await r.json();
+    return d.records || [];
+  },
+
+  async create(table, fields) {
+    const r = await fetch(`${AT_URL}/${encodeURIComponent(table)}`, {
+      method: 'POST', headers: this.headers,
+      body: JSON.stringify({ records: [{ fields }] })
+    });
+    const d = await r.json();
+    return d.records ? d.records[0] : null;
+  },
+
+  async update(table, id, fields) {
+    const r = await fetch(`${AT_URL}/${encodeURIComponent(table)}/${id}`, {
+      method: 'PATCH', headers: this.headers,
+      body: JSON.stringify({ fields })
+    });
+    return await r.json();
+  },
+
+  async delete(table, id) {
+    await fetch(`${AT_URL}/${encodeURIComponent(table)}/${id}`, {
+      method: 'DELETE', headers: this.headers
+    });
+  }
+};
+
+// ══ STATE ══
+let currentUser = null, currentClientId = null, coachMode = false, currentPathId = null;
+let clientCache = null; // full client object for current session
+
+// ══ LOADING UI ══
+function showLoading(msg='Loading...') {
+  let el = document.getElementById('loading-overlay');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'loading-overlay';
+    el.style.cssText = 'position:fixed;inset:0;background:rgba(253,250,246,0.92);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;font-family:"DM Sans",sans-serif;';
+    el.innerHTML = `<div style="font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:300;color:#2C2017;margin-bottom:8px;">AWExpedition™</div><div id="loading-msg" style="font-size:0.75rem;letter-spacing:0.15em;text-transform:uppercase;color:#D4B896;opacity:0.7;">${msg}</div>`;
+    document.body.appendChild(el);
+  } else {
+    document.getElementById('loading-msg').textContent = msg;
+    el.style.display = 'flex';
+  }
+}
+function hideLoading() {
+  const el = document.getElementById('loading-overlay');
+  if (el) el.style.display = 'none';
+}
+
+// ══ LOGIN ══
+function toggleCoachMode() {
+  coachMode = !coachMode;
+  document.getElementById('client-fields').style.display = coachMode ? 'none' : 'block';
+  document.querySelector('.login-btn').textContent = coachMode ? 'Enter guide dashboard' : 'Begin your expedition';
+  document.querySelector('.login-toggle').innerHTML = coachMode ? 'Not a guide? <span>Client sign in</span>' : 'Are you a guide? <span>Sign in here</span>';
+}
+
+async function doLogin() {
+  const name = document.getElementById('login-name').value.trim();
+  const code = document.getElementById('login-code').value.trim().toUpperCase();
+  const err = document.getElementById('login-error');
+  err.textContent = '';
+
+  // Coach login — hardcoded for security
+  if (coachMode) {
+    if (code === 'GUIDE2026') {
+      currentUser = { type: 'coach', name: 'Tan' };
+      document.getElementById('coach-name-display').textContent = 'Tan';
+      showLoading('Loading dashboard...');
+      await loadCoachDashboard();
+      hideLoading();
+      showScreen('screen-coach');
+    } else {
+      err.textContent = 'Incorrect code. Please try again.';
+    }
+    return;
+  }
+
+  if (!name) { err.textContent = 'Please enter your name.'; return; }
+  showLoading('Finding your expedition...');
+
+  try {
+    const records = await AT.get('Clients', `{Code}="${code}"`);
+    if (records.length === 0) {
+      hideLoading();
+      err.textContent = 'Code not recognised. Check with your guide.';
+      return;
+    }
+    const rec = records[0];
+    const isFirst = rec.fields['First Login'] !== true;
+    currentUser = { type: 'client', id: rec.id, name };
+
+    // Update last seen + first login flag
+    await AT.update('Clients', rec.id, {
+      'Last Seen': new Date().toISOString(),
+      'First Login': true
+    });
+
+    showLoading('Preparing your journey...');
+    clientCache = await buildClientObject(rec);
+    hideLoading();
+    loadClientHome(clientCache);
+    showScreen(isFirst ? 'screen-welcome' : 'screen-home');
+  } catch(e) {
+    hideLoading();
+    err.textContent = 'Connection error. Please try again.';
+    console.error(e);
+  }
+}
+
+// ══ BUILD CLIENT OBJECT FROM AIRTABLE ══
+async function buildClientObject(clientRec) {
+  const clientId = clientRec.id;
+  const f = clientRec.fields;
+
+  // Fetch all data in parallel
+  const [sessionRecs, questionRecs, responseRecs, experimentRecs, futureRecs, journalRecs] = await Promise.all([
+    AT.get('Sessions', `FIND("${clientId}", {Client})`),
+    AT.get('Questions', `FIND("${clientId}", {Client})`),
+    AT.get('Responses', `FIND("${clientId}", {Client})`),
+    AT.get('Experiments', `FIND("${clientId}", {Client})`),
+    AT.get('Future Explorations', `FIND("${clientId}", {Client})`),
+    AT.get('Reflections', `FIND("${clientId}", {Client})`)
+  ]);
+
+  // Build responses map: questionId -> { text, skip, date }
+  const responses = {};
+  responseRecs.forEach(r => {
+    const qLinks = r.fields['Question'] || [];
+    qLinks.forEach(qId => {
+      responses[qId] = {
+        airtableId: r.id,
+        text: r.fields['Response Text'] || '',
+        skip: r.fields['Skip Reason'] || '',
+        date: r.fields['Date'] || ''
+      };
+    });
+  });
+
+  // Group questions by session
+  const questionsBySession = {};
+  questionRecs.forEach(q => {
+    const sessLinks = q.fields['Session'] || [];
+    sessLinks.forEach(sId => {
+      if (!questionsBySession[sId]) questionsBySession[sId] = [];
+      questionsBySession[sId].push({ id: q.id, text: q.fields['Question Text'] || '' });
+    });
+  });
+
+  // Group sessions by path name
+  const pathMap = {};
+  sessionRecs.forEach(s => {
+    const pathName = s.fields['Path Name'] || 'General';
+    if (!pathMap[pathName]) pathMap[pathName] = [];
+    pathMap[pathName].push({
+      id: s.id,
+      label: s.fields['Session Label'] || '',
+      notes: s.fields['Notes'] || '',
+      questions: questionsBySession[s.id] || []
+    });
+  });
+
+  const paths = Object.keys(pathMap).map(name => ({
+    name,
+    sessions: pathMap[name].sort((a,b) => a.label.localeCompare(b.label))
+  }));
+
+  const experiments = experimentRecs.map(e => ({
+    id: e.id,
+    name: e.fields['Experiment Name'] || '',
+    desc: e.fields['Description'] || '',
+    status: (e.fields['Status'] || 'Active').toLowerCase(),
+    log: (() => { try { return JSON.parse(e.fields['Log'] || '[]'); } catch(x) { return []; } })()
+  }));
+
+  const futureExplorations = futureRecs.map(f => ({
+    id: f.id,
+    text: f.fields['Idea Text'] || '',
+    date: f.fields['Date'] || new Date().toISOString()
+  })).sort((a,b) => new Date(b.date) - new Date(a.date));
+
+  const journals = journalRecs.map(j => ({
+    id: j.id,
+    text: j.fields['Entry Text'] || '',
+    date: j.fields['Date'] || new Date().toISOString()
+  })).sort((a,b) => new Date(b.date) - new Date(a.date));
+
+  return {
+    id: clientId,
+    name: f['Name'] || '',
+    code: f['Code'] || '',
+    reflectionPrompt: f['Reflection Prompt'] || '',
+    lastSeen: f['Last Seen'] || null,
+    paths, responses, experiments, futureExplorations, journals
+  };
+}
+
+// ══ CLIENT HOME ══
+const GREETINGS = ['Good morning', 'Good afternoon', 'Good evening'];
+function getGreeting() {
+  const h = new Date().getHours();
+  return h < 12 ? GREETINGS[0] : h < 17 ? GREETINGS[1] : GREETINGS[2];
+}
+
+function loadClientHome(client) {
+  const now = new Date();
+  document.getElementById('home-date').textContent = now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'}).toUpperCase();
+  document.getElementById('home-greeting').textContent = `${getGreeting()}, ${currentUser.name}.`;
+  document.getElementById('home-client-name').textContent = `${currentUser.name}'s expedition`;
+  document.getElementById('journal-today').textContent = now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'}).toUpperCase();
+
+  const promptWrap = document.getElementById('reflection-prompt-wrap');
+  const promptText = document.getElementById('reflection-prompt-text');
+  if (client.reflectionPrompt) {
+    promptText.textContent = client.reflectionPrompt;
+    promptWrap.style.display = 'block';
+  } else {
+    promptWrap.style.display = 'none';
+  }
+
+  const lastSeen = client.lastSeen ? new Date(client.lastSeen) : null;
+  const daysSince = lastSeen ? (now - lastSeen) / 86400000 : 999;
+  document.getElementById('nudge-bar').style.display = daysSince > 3 ? 'flex' : 'none';
+
+  const allQ = client.paths.flatMap(p => p.sessions.flatMap(s => s.questions));
+  const unanswered = allQ.filter(q => !client.responses[q.id] || !client.responses[q.id].text).length;
+  document.getElementById('journey-badge').style.display = unanswered > 0 ? 'block' : 'none';
+  document.getElementById('journey-sub').textContent = unanswered > 0 ? `${unanswered} reflection${unanswered>1?'s':''} waiting` : 'Your session reflections';
+
+  const activeExps = client.experiments.filter(e => e.status === 'active');
+  document.getElementById('exp-badge').style.display = activeExps.length > 0 ? 'block' : 'none';
+
+  loadJourneyPaths(client);
+  loadExperiments(client);
+  loadJournalList(client);
+}
+
+// ══ JOURNEY PATHS ══
+function loadJourneyPaths(client) {
+  const list = document.getElementById('journey-paths-list');
+  list.innerHTML = '';
+  if (client.paths.length === 0) {
+    list.innerHTML = '<p class="empty-note" style="padding:20px;">Your guide hasn\'t added any paths yet.</p>';
+    return;
+  }
+  client.paths.forEach(path => {
+    const allQ = path.sessions.flatMap(s => s.questions);
+    const unanswered = allQ.filter(q => !client.responses[q.id] || !client.responses[q.id].text).length;
+    const div = document.createElement('div');
+    div.className = 'path-card';
+    div.innerHTML = `
+      ${unanswered > 0 ? '<div class="path-dot"></div>' : '<div style="width:7px;margin-right:12px;flex-shrink:0;"></div>'}
+      <div>
+        <div class="path-name">${path.name}</div>
+        <div class="path-meta">${path.sessions.length} session${path.sessions.length!==1?'s':''} · ${unanswered > 0 ? unanswered+' reflection'+(unanswered>1?'s':'')+' waiting' : 'all caught up'}</div>
+      </div>
+      <div class="path-arrow">→</div>`;
+    div.onclick = () => showPathDetail(path.name, client);
+    list.appendChild(div);
+  });
+}
+
+function showPathDetail(pathName, client) {
+  currentPathId = pathName;
+  const path = client.paths.find(p => p.name === pathName);
+  const list = document.getElementById('journey-paths-list');
+  const detail = document.getElementById('journey-path-detail');
+  list.classList.add('hidden');
+  detail.classList.remove('hidden');
+  detail.innerHTML = `
+    <div class="path-section-header">
+      <span class="path-back" onclick="showPathList()">← All paths</span>
+    </div>
+    <div class="path-section-title" style="margin-bottom:20px;">${path.name}</div>`;
+
+  path.sessions.forEach(session => {
+    const block = document.createElement('div');
+    block.className = 'session-block';
+    block.innerHTML = `<span class="session-tag">${session.label}</span>`;
+    if (session.notes) {
+      block.innerHTML += `<div class="session-notes"><span class="notes-label">From your session</span><div class="notes-text">${session.notes}</div><span class="notes-byline">— Summary from your guide</span></div>`;
+    }
+    if (session.questions.length > 0) {
+      block.innerHTML += `<span class="reflections-label">Reflections for you</span>`;
+      session.questions.forEach(q => {
+        const saved = client.responses[q.id] || {};
+        block.innerHTML += `
+          <div class="question-card">
+            <div class="question-text">${q.text}</div>
+            <div class="question-note">Answer what feels right — or skip.</div>
+            <textarea class="response-input" id="resp-${q.id}" placeholder="Just for you...">${saved.text||''}</textarea>
+            <div class="skip-row">
+              <span class="skip-label" onclick="toggleSkips('${q.id}')">I'd like to skip this one →</span>
+              <span class="skip-chip ${saved.skip==='time'?'selected':''}" id="sc-${q.id}-time" onclick="setSkip('${q.id}','time')">Need more time</span>
+              <span class="skip-chip ${saved.skip==='private'?'selected':''}" id="sc-${q.id}-private" onclick="setSkip('${q.id}','private')">Not comfortable yet</span>
+              <span class="skip-chip ${saved.skip==='irrelevant'?'selected':''}" id="sc-${q.id}-irrelevant" onclick="setSkip('${q.id}','irrelevant')">Not resonating yet</span>
+            </div>
+          </div>`;
+      });
+    }
+    detail.appendChild(block);
+  });
+
+  const btn = document.createElement('button');
+  btn.className = 'save-btn';
+  btn.textContent = 'Save reflections';
+  btn.onclick = saveJourneyResponses;
+  detail.appendChild(btn);
+}
+
+function showPathList() {
+  document.getElementById('journey-paths-list').classList.remove('hidden');
+  document.getElementById('journey-path-detail').classList.add('hidden');
+  loadJourneyPaths(clientCache);
+}
+
+function toggleSkips(qid) {
+  ['time','private','irrelevant'].forEach(k => {
+    const el = document.getElementById(`sc-${qid}-${k}`);
+    if (el) el.classList.toggle('show');
+  });
+}
+function setSkip(qid, val) {
+  ['time','private','irrelevant'].forEach(k => {
+    const el = document.getElementById(`sc-${qid}-${k}`);
+    if (el) el.classList.toggle('selected', k===val);
+  });
+  if (!window._skips) window._skips = {};
+  window._skips[qid] = val;
+}
+
+async function saveJourneyResponses() {
+  showLoading('Saving reflections...');
+  const client = clientCache;
+  const allQ = client.paths.flatMap(p => p.sessions.flatMap(s => s.questions));
+
+  for (const q of allQ) {
+    const ta = document.getElementById('resp-'+q.id);
+    if (!ta) continue;
+    const text = ta.value;
+    const skip = (window._skips && window._skips[q.id]) || (client.responses[q.id]?.skip) || '';
+    const existing = client.responses[q.id];
+
+    if (existing && existing.airtableId) {
+      await AT.update('Responses', existing.airtableId, {
+        'Response Text': text,
+        'Skip Reason': skip,
+        'Date': new Date().toISOString()
+      });
+    } else if (text || skip) {
+      await AT.create('Responses', {
+        'Response Text': text,
+        'Question': [q.id],
+        'Client': [client.id],
+        'Skip Reason': skip,
+        'Date': new Date().toISOString()
+      });
+    }
+    if (!client.responses[q.id]) client.responses[q.id] = {};
+    client.responses[q.id].text = text;
+    client.responses[q.id].skip = skip;
+  }
+
+  hideLoading();
+  showPathList();
+  showConfirm('✦','Reflections saved.','Your words are here whenever you return to them.','screen-journey');
+}
+
+// ══ EXPERIMENTS ══
+function switchExpTab(tab) {
+  document.querySelectorAll('.exp-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.exp-panel').forEach(p => p.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('exp-'+tab).classList.add('active');
+}
+
+function loadExperiments(client) {
+  const active = client.experiments.filter(e => e.status==='active');
+  const completed = client.experiments.filter(e => e.status==='completed');
+  const activePanel = document.getElementById('exp-active');
+  const completedPanel = document.getElementById('exp-completed');
+  const futurePanel = document.getElementById('exp-future');
+
+  activePanel.innerHTML = active.length === 0 ? '<p class="empty-note">No active experiments yet. Your guide will add one after your session.</p>' : '';
+  active.forEach(exp => {
+    const todayLogged = exp.log.find(l => l.date === todayStr());
+    activePanel.innerHTML += `
+      <div class="experiment-card">
+        <div class="exp-name">${exp.name}</div>
+        <div class="exp-desc">${exp.desc}</div>
+        <div class="exp-streak">Today: ${todayLogged ? (todayLogged.status==='did-it'?'Did it':todayLogged.status==='forgot'?'Forgot':'Something got in the way') : 'not yet logged'}</div>
+        <span class="tracker-label">How did today go?</span>
+        <div class="tracker-btns">
+          <button class="tracker-btn ${todayLogged&&todayLogged.status==='did-it'?'did-it':''}" onclick="logExp('${exp.id}','did-it',this)">I did it</button>
+          <button class="tracker-btn ${todayLogged&&todayLogged.status==='forgot'?'forgot':''}" onclick="logExp('${exp.id}','forgot',this)">I forgot</button>
+          <button class="tracker-btn ${todayLogged&&todayLogged.status==='got-in-way'?'got-in-way':''}" onclick="logExp('${exp.id}','got-in-way',this)">Something got<br>in the way</button>
+        </div>
+        <div class="got-in-way-prompt ${todayLogged&&todayLogged.status==='got-in-way'?'show':''}" id="giw-${exp.id}">
+          <span class="giw-label">What was it?</span>
+          <textarea class="giw-input" id="giw-text-${exp.id}" placeholder="Just for you — noticing what gets in the way is the work...">${todayLogged&&todayLogged.note?todayLogged.note:''}</textarea>
+          <button class="save-btn" style="margin-top:8px;" onclick="saveGiw('${exp.id}')">Save note</button>
+        </div>
+        <div class="log-history">
+          ${exp.log.slice().reverse().slice(0,7).map(l => `
+            <div class="log-item">
+              <span class="log-date">${l.date}</span>
+              <div>
+                <span class="log-status ${l.status==='did-it'?'did':l.status==='forgot'?'forgot':'giw'}">${l.status==='did-it'?'Did it':l.status==='forgot'?'Forgot':'Something got in the way'}</span>
+                ${l.note?`<div class="log-note">${l.note}</div>`:''}
+              </div>
+            </div>`).join('')}
+        </div>
+      </div>`;
+  });
+
+  completedPanel.innerHTML = completed.length === 0 ? '<p class="empty-note">No completed experiments yet.</p>' : '';
+  completed.forEach(exp => {
+    const didCount = exp.log.filter(l => l.status==='did-it').length;
+    completedPanel.innerHTML += `<div class="experiment-card"><div class="exp-name">${exp.name}</div><div class="exp-desc">${exp.desc}</div><div class="exp-streak">${didCount} of ${exp.log.length} days completed</div></div>`;
+  });
+
+  futurePanel.innerHTML = '';
+  if (client.futureExplorations.length === 0) {
+    futurePanel.innerHTML = '<p class="empty-note">Nothing here yet. Drop an idea below — something you\'re curious about trying.</p>';
+  } else {
+    client.futureExplorations.forEach(f => {
+      futurePanel.innerHTML += `<div class="future-card"><div class="future-idea">${f.text}</div><div class="future-date">${new Date(f.date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div></div>`;
+    });
+  }
+  futurePanel.innerHTML += `
+    <div class="add-future-form">
+      <span class="add-future-label">Add an idea for future exploration</span>
+      <textarea class="future-input" id="future-idea-input" placeholder="Something I'm curious about trying..."></textarea>
+      <button class="save-btn" style="margin-top:8px;" onclick="saveFutureIdea()">Add idea</button>
+    </div>`;
+}
+
+function todayStr() {
+  return new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+}
+
+async function logExp(expId, status, btn) {
+  const exp = clientCache.experiments.find(e => e.id === expId);
+  const today = todayStr();
+  const existing = exp.log.find(l => l.date === today);
+  if (existing) { existing.status = status; existing.note = ''; }
+  else { exp.log.push({ date: today, status, note: '' }); }
+  await AT.update('Experiments', expId, { 'Log': JSON.stringify(exp.log) });
+  const giw = document.getElementById('giw-'+expId);
+  if (status === 'got-in-way') { giw.classList.add('show'); }
+  else { giw.classList.remove('show'); }
+  btn.closest('.tracker-btns').querySelectorAll('.tracker-btn').forEach(b => b.className = 'tracker-btn');
+  btn.classList.add(status);
+  document.querySelector(`.exp-streak`).textContent = `Today: ${status==='did-it'?'Did it':status==='forgot'?'Forgot':'Something got in the way'}`;
+}
+
+async function saveGiw(expId) {
+  const note = document.getElementById('giw-text-'+expId).value.trim();
+  const exp = clientCache.experiments.find(e => e.id === expId);
+  const today = todayStr();
+  const existing = exp.log.find(l => l.date === today);
+  if (existing) existing.note = note;
+  await AT.update('Experiments', expId, { 'Log': JSON.stringify(exp.log) });
+  showConfirm('🌱','Noted.','Noticing what gets in the way is its own kind of awareness.','screen-experiments');
+}
+
+async function saveFutureIdea() {
+  const text = document.getElementById('future-idea-input').value.trim();
+  if (!text) return;
+  showLoading('Saving...');
+  const rec = await AT.create('Future Explorations', {
+    'Idea Text': text,
+    'Client': [currentUser.id],
+    'Date': new Date().toISOString()
+  });
+  clientCache.futureExplorations.unshift({ id: rec.id, text, date: new Date().toISOString() });
+  hideLoading();
+  loadExperiments(clientCache);
+  switchExpTab('future');
+  showConfirm('✦','Idea saved.','Your guide will see this before your next session.','screen-experiments');
+}
+
+// ══ REFLECTIONS ══
+async function saveJournal() {
+  const text = document.getElementById('journal-text').value.trim();
+  if (!text) return;
+  showLoading('Saving...');
+  const rec = await AT.create('Reflections', {
+    'Entry Text': text,
+    'Client': [currentUser.id],
+    'Date': new Date().toISOString()
+  });
+  clientCache.journals.unshift({ id: rec.id, text, date: new Date().toISOString() });
+  hideLoading();
+  document.getElementById('journal-text').value = '';
+  loadJournalList(clientCache);
+  showConfirm('✦','Reflection saved.','Words have weight. This one is yours.','screen-journal');
+}
+
+function loadJournalList(client) {
+  const list = document.getElementById('journal-list');
+  if (!list) return;
+  list.innerHTML = client.journals.length === 0 ? '<p class="empty-note">No reflections yet.</p>'
+    : client.journals.slice(0,6).map(j => `
+      <div class="journal-item">
+        <div class="journal-item-date">${new Date(j.date).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</div>
+        <div class="journal-item-preview">${j.text.slice(0,120)}${j.text.length>120?'…':''}</div>
+      </div>`).join('');
+}
+
+// ══ CONFIRM ══
+function showConfirm(glyph, title, sub, returnTo) {
+  document.getElementById('confirm-glyph').textContent = glyph;
+  document.getElementById('confirm-title').textContent = title;
+  document.getElementById('confirm-sub').textContent = sub;
+  document.getElementById('confirm-back').onclick = () => showScreen(returnTo);
+  showScreen('screen-confirm');
+}
+
+// ══ COACH DASHBOARD ══
+async function loadCoachDashboard() {
+  const clientRecs = await AT.get('Clients');
+  const list = document.getElementById('coach-client-list');
+  list.innerHTML = '';
+
+  for (const rec of clientRecs) {
+    const f = rec.fields;
+    const lastSeen = f['Last Seen'] ? new Date(f['Last Seen']).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : 'Never';
+    const sessionCount = (f['Sessions'] || []).length;
+    const expCount = (f['Experiments'] || []).length;
+    const journalCount = (f['Reflections'] || []).length;
+    const futureCount = (f['Future Explorations'] || []).length;
+
+    const div = document.createElement('div');
+    div.className = 'client-card';
+    div.innerHTML = `
+      <div class="client-name">${f['Name'] || ''}</div>
+      <div class="client-meta">Code: ${f['Code'] || ''} · Last active: ${lastSeen}</div>
+      <div class="client-tags">
+        <span class="ctag">${sessionCount} session${sessionCount!==1?'s':''}</span>
+        <span class="ctag">${expCount} experiment${expCount!==1?'s':''}</span>
+        <span class="ctag">${journalCount} reflection${journalCount!==1?'s':''}</span>
+        ${futureCount>0?`<span class="ctag new">${futureCount} future idea${futureCount!==1?'s':''}</span>`:''}
+      </div>`;
+    div.onclick = () => showClientDetail(rec.id, f['Name']);
+    list.appendChild(div);
+  }
+}
+
+async function showClientDetail(clientRecId, clientName) {
+  currentClientId = clientRecId;
+  showLoading('Loading client data...');
+
+  const clientRecs = await AT.get('Clients', `RECORD_ID()="${clientRecId}"`);
+  if (!clientRecs.length) { hideLoading(); return; }
+  const clientRec = clientRecs[0];
+  const client = await buildClientObject(clientRec);
+
+  hideLoading();
+  document.getElementById('detail-name').textContent = client.name;
+  document.getElementById('detail-code').textContent = `Access code: ${client.code}`;
+  ['new-path-name','new-session-label','new-notes-text','new-q-text','new-exp-name','new-exp-desc'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+  const rpField = document.getElementById('reflection-prompt-field');
+  if (rpField) rpField.value = client.reflectionPrompt || '';
+
+  // Paths + responses
+  const pathsDiv = document.getElementById('detail-paths');
+  pathsDiv.innerHTML = client.paths.length === 0 ? '<p class="empty-note">No paths yet. Add the first one below.</p>'
+    : client.paths.map(p => `
+        <div style="margin-bottom:20px;">
+          <div style="font-size:0.9rem;font-weight:500;color:var(--bark);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--mist);">${p.name}</div>
+          ${p.sessions.map(s => `
+            <div style="margin-bottom:12px;">
+              <div style="font-size:0.62rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--clay);opacity:0.7;margin-bottom:8px;">${s.label}</div>
+              ${s.notes?`<div class="response-card" style="border-left-color:var(--bark);margin-bottom:8px;"><div class="response-session">Session notes</div><div class="response-a" style="font-family:'DM Sans',sans-serif;font-size:0.82rem;white-space:pre-line;">${s.notes}</div></div>`:''}
+              ${s.questions.map(q => {
+                const resp = client.responses[q.id];
+                return `<div class="response-card">
+                  <div class="response-q">${q.text}</div>
+                  <div class="response-a">${resp&&resp.text?resp.text:'<span class="no-response">Not yet answered</span>'}</div>
+                  ${resp&&resp.skip?`<div class="response-date">Skipped: ${resp.skip}</div>`:''}
+                  ${resp&&resp.date?`<div class="response-date">${new Date(resp.date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div>`:''}
+                </div>`;
+              }).join('')}
+            </div>`).join('')}
+        </div>`).join('');
+
+  // Future explorations
+  const futureDiv = document.getElementById('detail-future');
+  futureDiv.innerHTML = client.futureExplorations.length === 0
+    ? '<p class="empty-note">No ideas from client yet.</p>'
+    : client.futureExplorations.map(f => `<div class="future-card"><div class="future-idea">${f.text}</div><div class="future-date">${new Date(f.date).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</div></div>`).join('');
+
+  // Reflections
+  const jDiv = document.getElementById('detail-journals');
+  jDiv.innerHTML = client.journals.length === 0 ? '<p class="empty-note">No reflections yet.</p>'
+    : client.journals.map(j => `<div class="response-card"><div class="response-a" style="font-family:'DM Sans',sans-serif;font-size:0.85rem;">${j.text}</div><div class="response-date">${new Date(j.date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div></div>`).join('');
+
+  document.getElementById('coach-main').classList.add('hidden');
+  document.getElementById('coach-detail').classList.remove('hidden');
+}
+
+function hideDetail() {
+  document.getElementById('coach-main').classList.remove('hidden');
+  document.getElementById('coach-detail').classList.add('hidden');
+  showLoading('Loading dashboard...');
+  loadCoachDashboard().then(hideLoading);
+}
+
+async function addJourneyContent() {
+  const pathName = document.getElementById('new-path-name').value.trim();
+  const sessionLabel = document.getElementById('new-session-label').value.trim() || 'New Session';
+  const notes = document.getElementById('new-notes-text').value.trim();
+  const qText = document.getElementById('new-q-text').value.trim();
+  if (!pathName && !notes && !qText) return;
+  showLoading('Adding to journey map...');
+
+  // Find or create session
+  const existingSessions = await AT.get('Sessions',
+    `AND(FIND("${currentClientId}", {Client}), {Path Name}="${pathName}", {Session Label}="${sessionLabel}")`);
+
+  let sessionId;
+  if (existingSessions.length > 0) {
+    sessionId = existingSessions[0].id;
+    if (notes) await AT.update('Sessions', sessionId, { 'Notes': notes });
+  } else {
+    const newSession = await AT.create('Sessions', {
+      'Session Label': sessionLabel,
+      'Client': [currentClientId],
+      'Path Name': pathName,
+      'Notes': notes
+    });
+    sessionId = newSession.id;
+  }
+
+  if (qText) {
+    await AT.create('Questions', {
+      'Question Text': qText,
+      'Session': [sessionId],
+      'Client': [currentClientId]
+    });
+  }
+
+  hideLoading();
+  showClientDetail(currentClientId);
+}
+
+async function addExperiment() {
+  const name = document.getElementById('new-exp-name').value.trim();
+  const desc = document.getElementById('new-exp-desc').value.trim();
+  if (!name) return;
+  showLoading('Adding experiment...');
+  await AT.create('Experiments', {
+    'Experiment Name': name,
+    'Client': [currentClientId],
+    'Description': desc,
+    'Status': 'Active',
+    'Log': '[]'
+  });
+  hideLoading();
+  showClientDetail(currentClientId);
+}
+
+async function saveReflectionPrompt() {
+  const text = document.getElementById('reflection-prompt-field').value.trim();
+  showLoading('Saving...');
+  await AT.update('Clients', currentClientId, { 'Reflection Prompt': text });
+  hideLoading();
+  const btn = event.target;
+  btn.textContent = 'Saved ✦';
+  setTimeout(() => btn.textContent = 'Save prompt', 2000);
+}
+
+async function addNewClient() {
+  const name = prompt('Client first name:');
+  if (!name) return;
+  const code = prompt('Create an access code (e.g. SARAH2026):');
+  if (!code) return;
+  showLoading('Creating client...');
+  await AT.create('Clients', {
+    'Name': name.trim(),
+    'Code': code.trim().toUpperCase(),
+    'First Login': false,
+    'Reflection Prompt': ''
+  });
+  hideLoading();
+  showLoading('Loading dashboard...');
+  await loadCoachDashboard();
+  hideLoading();
+}
+
+// ══ NAV ══
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function doLogout() {
+  currentUser = null; currentClientId = null; coachMode = false;
+  currentPathId = null; clientCache = null;
+  ['login-name','login-code'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+  document.getElementById('login-error').textContent = '';
+  document.getElementById('client-fields').style.display = 'block';
+  document.querySelector('.login-btn').textContent = 'Begin your expedition';
+  document.querySelector('.login-toggle').innerHTML = 'Are you a guide? <span>Sign in here</span>';
+  showScreen('screen-login');
+}
+</script>
+</body>
+</html>
