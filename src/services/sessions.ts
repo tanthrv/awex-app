@@ -69,14 +69,29 @@ export async function addReflectionQuestion(
 
 export async function fetchSessionsForClient(clientId: string): Promise<Session[]> {
   try {
-    const { data, error } = await supabase
+    // Fetch sessions first
+    const { data: sessionsData, error: sessionsError } = await supabase
       .from('sessions')
-      .select('*, reflection_questions(*)')
+      .select('id, client_id, notes, session_date, created_at')
       .eq('client_id', clientId)
       .order('created_at', { ascending: false });
 
-    if (error || !data) return [];
-    return data as Session[];
+    if (sessionsError || !sessionsData || sessionsData.length === 0) return [];
+
+    // Fetch all reflection questions for this client in one query
+    const sessionIds = sessionsData.map(s => s.id);
+    const { data: questionsData } = await supabase
+      .from('reflection_questions')
+      .select('id, session_id, client_id, question, created_at')
+      .in('session_id', sessionIds);
+
+    const questions = questionsData ?? [];
+
+    // Attach questions to their sessions
+    return sessionsData.map(session => ({
+      ...session,
+      reflection_questions: questions.filter(q => q.session_id === session.id),
+    })) as Session[];
   } catch {
     return [];
   }
@@ -84,15 +99,26 @@ export async function fetchSessionsForClient(clientId: string): Promise<Session[
 
 export async function fetchSessionById(sessionId: string, clientId: string): Promise<Session | null> {
   try {
-    const { data, error } = await supabase
+    // Fetch the session
+    const { data: sessionData, error: sessionError } = await supabase
       .from('sessions')
-      .select('*, reflection_questions(*)')
+      .select('id, client_id, notes, session_date, created_at')
       .eq('id', sessionId)
       .eq('client_id', clientId)
       .single();
 
-    if (error || !data) return null;
-    return data as Session;
+    if (sessionError || !sessionData) return null;
+
+    // Fetch reflection questions for this session separately
+    const { data: questionsData } = await supabase
+      .from('reflection_questions')
+      .select('id, session_id, client_id, question, created_at')
+      .eq('session_id', sessionId);
+
+    return {
+      ...sessionData,
+      reflection_questions: questionsData ?? [],
+    } as Session;
   } catch {
     return null;
   }
